@@ -19,6 +19,6 @@ If you have Java installed, simply download all files from this repository and w
 </p>
 
 <p align="justify">
-The SPARQL rules in the file ctDTS.ttl will be executed on the state of affairs in the file Example1.ttl and the result will be written in the file inferredABox.rdf. To run the other examples, simply change the second parameter.
+The SPARQL rules in the file ctDTS.ttl will be executed on the state of affairs in the file Example1.ttl and the result will be written in the file inferredABox.ttl. To run the other examples, simply change the second parameter.
 </p>
 
