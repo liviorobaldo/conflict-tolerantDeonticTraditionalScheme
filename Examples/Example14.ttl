@@ -1,0 +1,60 @@
+@prefix : <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+@prefix : <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix soa: <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme/soa#> .
+@base <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+
+
+########################################################################################################################################
+# Description:
+#---------------------------------------------------------------------------------------------------------------------------------------
+# The example below include the representation of these two sentences:
+# (1) "Smith is obliged to eat or drink".
+# (2) "Smith is obliged to not eat".
+# From (1) and (2), the Disjunctive Syllogism at the level of the eventualities infers (3) "Smith is obliged to drink".
+# The example also include the representation of these two variants of (1) and (2):
+# (3) "Bill is permitted to eat or drink".
+# (4) "Bill is permitted to not eat".
+# But from (3) and (4) it is *NOT* inferred that (5) "Bill is permitted to drink", as the Disjunctive Syllogism does not hold for
+# the Permitted modality (nor for Optional), but only for Obligatory and Rexist.
+########################################################################################################################################
+
+
+########################################################################################################################################
+# Eventuality types and thematic roles
+########################################################################################################################################
+
+soa:Eat rdf:type rdfs:Class, :Eventuality.
+soa:Drink rdf:type rdfs:Class, :Eventuality.
+soa:has-agent rdf:type rdf:Property, :ThematicRole.
+
+
+########################################################################################################################################
+# Input facts:
+########################################################################################################################################
+
+#Smith is obliged to eat or drink:
+soa:eos rdf:type :Obligatory.
+soa:eos :or1 soa:ees; :or2 soa:eds.
+soa:ees rdf:type soa:Eat; soa:has-agent soa:Smith.
+soa:eds rdf:type soa:Drink; soa:has-agent soa:Smith.
+
+#Smith is obliged to not eat.
+soa:enes :not soa:ees.
+soa:enes rdf:type :Obligatory.
+
+#Bill is permitted to eat or drink:
+soa:eob rdf:type :Permitted.
+soa:eob :or1 soa:eeb; :or2 soa:edb.
+soa:eeb rdf:type soa:Eat; soa:has-agent soa:Bill.
+soa:edb rdf:type soa:Drink; soa:has-agent soa:Bill.
+
+#Bill is obliged to not eat.
+soa:eneb :not soa:eeb.
+soa:eneb rdf:type :Permitted.
+
+
+

@@ -1,0 +1,89 @@
+@prefix : <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+@prefix soa: <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme/soa#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+soa:elj  rdf:type      :Rexist ;
+        rdf:type       soa:Leave ;
+        soa:has-agent  soa:John .
+
+soa:enlj  :not    soa:elj ;
+        rdf:type  :Rexist .
+
+soa:has-object  rdf:type  rdf:Property ;
+        rdf:type  :ThematicRole .
+
+_:b0    rdf:object     :Rexist ;
+        rdf:predicate  rdf:type ;
+        rdf:subject    soa:enlj ;
+        rdf:type       :hold ;
+        rdf:type       :false .
+
+_:b1    :is-in-contradiction-with  _:b2 ;
+        rdf:object                 :Rexist ;
+        rdf:predicate              rdf:type ;
+        rdf:subject                soa:epj ;
+        rdf:type                   :hold ;
+        rdf:type                   :true .
+
+_:b3    :is-in-contradiction-with  _:b0 ;
+        rdf:object                 :Rexist ;
+        rdf:predicate              rdf:type ;
+        rdf:subject                soa:enlj ;
+        rdf:type                   :hold ;
+        rdf:type                   :true .
+
+_:b4    rdf:object     :Rexist ;
+        rdf:predicate  rdf:type ;
+        rdf:subject    soa:enpj ;
+        rdf:type       :hold ;
+        rdf:type       :false .
+
+soa:has-agent  rdf:type  rdf:Property ;
+        rdf:type  :ThematicRole .
+
+_:b5    :is-in-contradiction-with  _:b4 ;
+        rdf:object                 :Rexist ;
+        rdf:predicate              rdf:type ;
+        rdf:subject                soa:enpj ;
+        rdf:type                   :hold ;
+        rdf:type                   :true .
+
+soa:Leave  rdf:type  rdfs:Class ;
+        rdf:type  :Eventuality .
+
+_:b2    rdf:object     :Rexist ;
+        rdf:predicate  rdf:type ;
+        rdf:subject    soa:epj ;
+        rdf:type       :hold ;
+        rdf:type       :false .
+
+soa:Pay  rdf:type  rdfs:Class ;
+        rdf:type  :Eventuality .
+
+soa:epj  rdf:type           :Rexist ;
+        rdf:type            soa:Pay ;
+        soa:has-agent       soa:Jack ;
+        soa:has-object      soa:3pounds ;
+        soa:has-instrument  soa:cash .
+
+soa:enpj  :not    soa:epj ;
+        rdf:type  :Rexist .
+
+_:b6    :is-in-contradiction-with  _:b7 ;
+        rdf:object                 :Rexist ;
+        rdf:predicate              rdf:type ;
+        rdf:subject                soa:elj ;
+        rdf:type                   :hold ;
+        rdf:type                   :true .
+
+soa:has-instrument  rdf:type  rdf:Property ;
+        rdf:type  :ThematicRole .
+
+_:b7    rdf:object     :Rexist ;
+        rdf:predicate  rdf:type ;
+        rdf:subject    soa:elj ;
+        rdf:type       :hold ;
+        rdf:type       :false .

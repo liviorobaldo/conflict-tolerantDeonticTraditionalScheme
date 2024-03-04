@@ -1,0 +1,58 @@
+@prefix : <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+@prefix : <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix soa: <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme/soa#> .
+@base <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+
+
+########################################################################################################################################
+# Description:
+#---------------------------------------------------------------------------------------------------------------------------------------
+# This example contains the following statements:
+# - (1) "Whoever parks in a parking spot is obliged to pay £3 at the parking meter associated with that spot".
+# - (2) "It is prohibited to pay at parking meters associated with parking spots".
+# (1) and (2) are formalized as SPARQL rules. The state of affairs contain then the individual soa:John who is a human who parked in the
+# parking spot soa:aparkingspot. From (1) and (2) it is inferred that John is both obliged to pay £3 at the parking meter associated with
+# soa:aparkingspot and that he is prohibited to pay any amount of money at that parking meter. Therefore, a conflict is inferred between
+# this obligation and this prohibition.
+########################################################################################################################################
+
+########################################################################################################################################
+# Eventuality types and thematic roles
+########################################################################################################################################
+
+soa:Park rdf:type rdfs:Class, :Eventuality.
+soa:Pay rdf:type rdfs:Class, :Eventuality.
+soa:has-agent rdf:type rdf:Property, :ThematicRole.
+soa:has-object rdf:type rdf:Property, :ThematicRole.
+soa:has-location rdf:type rdf:Property, :ThematicRole.
+soa:has-recipient rdf:type rdf:Property, :ThematicRole.
+
+########################################################################################################################################
+# Input facts:
+########################################################################################################################################
+
+#John is a human who parked in soa:aparkingspot.
+soa:epkj rdf:type soa:Park; soa:has-agent soa:John; soa:has-location soa:aparkingspot. 
+soa:John rdf:type soa:Human.
+soa:aparkingspot rdf:type soa:parkingSpot.
+soa:itsparkingmeter soa:associated-with soa:aparkingspot.
+
+#The following rule encode the norm "Whoever parks in a parking spot is obliged to pay £3 at the parking meter associated with that spot"
+[rdf:type :InferenceRule; :has-sparql-code """
+	CONSTRUCT{[rdf:type soa:Pay,:Obligatory; soa:has-agent ?u; soa:has-object soa:3pounds; soa:has-recipient ?pm]}
+	WHERE{?e rdf:type soa:Park; soa:has-agent ?u; soa:has-location ?p. ?u rdf:type soa:Human. ?p rdf:type soa:parkingSpot. ?pm soa:associated-with ?p
+		  NOT EXISTS{?r rdf:type soa:Pay,:Obligatory; soa:has-agent ?u; soa:has-object soa:3pounds; soa:has-recipient ?pm}}"""].
+
+#The following rule encode the norm "It is prohibited to pay at parking meters associated with parking spots".
+[rdf:type :InferenceRule; :has-sparql-code """
+	CONSTRUCT{[rdf:type :false,:hold; 
+			   rdf:subject [rdf:type soa:Pay; soa:has-agent ?u; soa:has-recipient ?pm]; 
+			   rdf:predicate rdf:type; 
+			   rdf:object :Permitted]}
+	WHERE{?u rdf:type soa:Human. ?p rdf:type soa:parkingSpot. ?pm soa:associated-with ?p.
+		  NOT EXISTS{?r rdf:type :false,:hold; rdf:subject ?rp; rdf:predicate rdf:type; rdf:object :Permitted. 
+					 ?rp rdf:type soa:Pay; soa:has-agent ?u; soa:has-recipient ?pm}}"""].

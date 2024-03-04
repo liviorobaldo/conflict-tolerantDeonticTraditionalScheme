@@ -1,0 +1,75 @@
+@prefix : <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+@prefix : <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix soa: <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme/soa#> .
+@base <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+
+
+########################################################################################################################################
+# Description:
+#---------------------------------------------------------------------------------------------------------------------------------------
+# This example contains the following statements:
+# - (1) "John is obliged to pay £3" 
+# - (2) "John pays £3"
+# - (3) "John pays £3 in cash".
+# - (4) "John pays £4"
+# - (5) "John pays in cash"
+# and the following statements:
+# - (6) "Bill is prohibited to pay in cash" 
+# - (7) "Bill pays £3"
+# - (8) "Bill pays £3 in cash".
+# - (9) "Bill pays £4"
+# - (10) "Bill pays in cash"
+# From (1)-(5), it is inferred that (2) and (3) comply with (1), but not by (4) and (5). 
+# From (6)-(10), it is inferred that (8) and (10) violates (6), but not by (7) and (9).
+# The reader is invited to experiment himself/herself by trying other actions, thematic roles, or values of thematic roles.
+########################################################################################################################################
+
+
+########################################################################################################################################
+# Eventuality types and thematic roles
+########################################################################################################################################
+
+soa:Pay rdf:type rdfs:Class, :Eventuality.
+soa:has-agent rdf:type rdf:Property, :ThematicRole.
+soa:has-object rdf:type rdf:Property, :ThematicRole.
+soa:has-instrument rdf:type rdf:Property, :ThematicRole.
+
+
+########################################################################################################################################
+# Input facts:
+########################################################################################################################################
+
+#John is obliged to pay £3
+soa:epoj rdf:type soa:Pay,:Obligatory; soa:has-agent soa:John; soa:has-object soa:3pounds.
+
+#John pays £3
+soa:epj1 rdf:type soa:Pay,:Rexist; soa:has-agent soa:John; soa:has-object soa:3pounds.
+
+#John pays £3 in cash.
+soa:epj2 rdf:type soa:Pay,:Rexist; soa:has-agent soa:John; soa:has-object soa:3pounds; soa:has-instrument soa:cash.
+
+#John pays £4
+soa:epj3 rdf:type soa:Pay,:Rexist; soa:has-agent soa:John; soa:has-object soa:4pounds.
+
+#John pays in cash.
+soa:epj4 rdf:type soa:Pay,:Rexist; soa:has-agent soa:John; soa:has-instrument soa:cash.
+
+#Bill is not permitted to pay in cash.
+[rdf:type :false,:hold; rdf:subject soa:eppb; rdf:predicate rdf:type; rdf:object :Permitted].
+soa:eppb rdf:type soa:Pay; soa:has-agent soa:Bill; soa:has-instrument soa:cash.
+
+#Bill pays £3
+soa:epb1 rdf:type soa:Pay,:Rexist; soa:has-agent soa:Bill; soa:has-object soa:3pounds.
+
+#Bill pays £3 in cash.
+soa:epb2 rdf:type soa:Pay,:Rexist; soa:has-agent soa:Bill; soa:has-object soa:3pounds; soa:has-instrument soa:cash.
+
+#Bill pays £4
+soa:epb3 rdf:type soa:Pay,:Rexist; soa:has-agent soa:Bill; soa:has-object soa:4pounds.
+
+#Bill pays in cash.
+soa:epb4 rdf:type soa:Pay,:Rexist; soa:has-agent soa:Bill; soa:has-instrument soa:cash.
