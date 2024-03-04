@@ -11,7 +11,7 @@ To re-execute the examples locally you need Java installed. The source code down
 </p>
 
 <p align="justify">
-If you have Java installed, simply download all files from this repository and write the following on the consolle:
+If you have Java installed, simply download all files from this repository and write the following in the consolle:
 </p>
 
 <p align="center">
