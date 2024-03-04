@@ -3,7 +3,7 @@ This is the GitHub repository associated with the paper "Compliance checking in 
 </p>
 
 <p align="justify">
-This repository contains the computational ontology proposed in the paper as well as all examples shown therein. The computational ontology includes RDF resources that implement a conflict-tolerant version of the well-known Deontic Traditional Scheme (see the paper for details). Some of these resources specify SPARQL rules in the form CONSTRUCT-WHERE that enable the inferences in the Deontic Traditional Scheme.
+This repository contains the computational ontology proposed in the paper as well as all examples shown and discussed therein. The ontology includes RDF resources that implement a conflict-tolerant version of the well-known Deontic Traditional Scheme (see the paper for details). Some of these resources specify SPARQL rules in the form CONSTRUCT-WHERE that enable the inferences in the Deontic Traditional Scheme.
 </p>
 
 <p align="justify">
