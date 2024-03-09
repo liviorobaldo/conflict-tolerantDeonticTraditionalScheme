@@ -1,0 +1,363 @@
+@prefix : <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@base <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+
+
+
+#------------------------------------------------------------------------------------------------------------------------------------------------
+# Inference rules
+#
+# :InferenceRule is a special class that contains the SPARQL rules in the form CONSTRUCT-WHERE to execute. Each individual of this 
+# class is associated through the property has-sparql-code with a xsd:string that executes it. The automated reasoner first collects 
+# all individuals of the class :InferenceRule; then, it iteratively re-execute the SPARQL rules in the range of :has-sparql-code 
+# until no new individual is inferred.
+#------------------------------------------------------------------------------------------------------------------------------------------------
+
+:InferenceRule rdf:type rdfs:Class.
+:has-sparql-code rdf:type rdf:Property;
+	rdfs:domain :InferenceRule;
+	rdfs:range xsd:string.
+
+
+#------------------------------------------------------------------------------------------------------------------------------------------------
+# 1st-level classes and properties (Hobbs's logic) - eventualities, modalities, and thematic roles
+#------------------------------------------------------------------------------------------------------------------------------------------------
+
+#Top classes:
+:Eventuality rdf:type rdfs:Class.
+:Modality rdf:type rdfs:Class.
+:ThematicRole rdf:type rdfs:Class.
+
+#Rexist modality:
+:Rexist rdf:type rdfs:Class,:Modality.
+
+#negation, conjunction, and disjunction of eventualities:
+:not rdf:type rdf:Property; rdfs:domain :Eventuality; rdfs:range :Eventuality.
+:and1 rdf:type rdf:Property; rdfs:domain :Eventuality; rdfs:range :Eventuality.
+:and2 rdf:type rdf:Property; rdfs:domain :Eventuality; rdfs:range :Eventuality.
+:or1 rdf:type rdf:Property; rdfs:domain :Eventuality; rdfs:range :Eventuality.
+:or2 rdf:type rdf:Property; rdfs:domain :Eventuality; rdfs:range :Eventuality.
+
+#Deontic modalities:
+:DeonticModality rdf:type rdfs:Class; rdfs:subClassOf :Modality.
+:Obligatory rdf:type rdfs:Class,:DeonticModality.
+:Permitted rdf:type rdfs:Class,:DeonticModality.
+:Optional rdf:type rdfs:Class,:DeonticModality.
+
+
+#------------------------------------------------------------------------------------------------------------------------------------------------
+# 2nd-level classes and properties - classical logic operators applied to rdf:Statement(s), i.e., reifications of 1st-level assertions.
+# These are needed because RDF vocabulary does not implement several operators from classical logic (negation, disjunction, etc.), nor
+# the alethic modal logic operators of necessity (□) and possibility (◊)
+#------------------------------------------------------------------------------------------------------------------------------------------------
+
+:statement rdf:type rdfs:Class; rdfs:subClassOf rdf:Statement.
+:true rdf:type rdfs:Class; rdfs:subClassOf :statement.
+:false rdf:type rdfs:Class; rdfs:subClassOf :statement.
+:hold rdf:type rdfs:Class; rdfs:subClassOf :statement.
+:necessary a rdfs:Class; rdfs:subClassOf :statement.
+:possible a rdfs:Class; rdfs:subClassOf :statement.
+
+:disjunction rdf:type rdf:Property;
+	rdfs:domain :statement;
+	rdfs:range :statement.
+
+	
+#------------------------------------------------------------------------------------------------------------------------------------------------
+# 3rd-level - explicit representation of contradictions, conflicts, violations, and other undesirable consequences (fallacies, mistakes, etc.)
+#------------------------------------------------------------------------------------------------------------------------------------------------
+
+:is-in-contradiction-with rdf:type rdf:Property;
+	rdfs:domain :statement;
+	rdfs:range :statement.
+:is-in-conflict-with rdf:type rdf:Property;
+	rdfs:domain :statement;
+	rdfs:range :statement.
+:is-complied-with-by rdf:type rdf:Property;
+	rdfs:domain :statement;
+	rdfs:range :statement.
+:is-violated-by rdf:type rdf:Property;
+	rdfs:domain :statement;
+	rdfs:range :statement.
+:is-necessary-violated-by rdf:type rdf:Property;
+	rdfs:domain :statement;
+	rdfs:range :statement.
+
+	
+#------------------------------------------------------------------------------------------------------------------------------------------------
+# Inference rules at the 1st level (the level of the eventualities)
+#------------------------------------------------------------------------------------------------------------------------------------------------
+
+#The following rule infers that if two eventualities are direct instantiations of the same abstract eventuality (i.e., they both describe the 
+#same action/state with the same thematic roles) but for at least one thematic role, for which it is asserted that one of the two eventualities
+#has a certain value on that thematic role while the other one does not, then the two eventualities are connected by the ":not" property.
+[rdf:type :InferenceRule;
+	:has-sparql-code """CONSTRUCT{?e1 :not ?e2}
+						WHERE{?e1 rdf:type ?c. ?e2 rdf:type ?c. ?c rdf:type :Eventuality. FILTER(?e1!=?e2)
+						  ?trn rdf:type :ThematicRole. ?e1 ?trn ?vn. ?r rdf:type :false,:hold; rdf:subject ?e2; rdf:predicate ?trn; rdf:object ?vn.
+						  NOT EXISTS{?tr rdf:type :ThematicRole. FILTER(?tr!=?trn) ?e1 ?tr ?tv1. NOT EXISTS{?e2 ?tr ?tv2}}
+						  NOT EXISTS{?tr rdf:type :ThematicRole. FILTER(?tr!=?trn) ?e2 ?tr ?tv2. NOT EXISTS{?e1 ?tr ?tv1}}
+						  NOT EXISTS{?tr rdf:type :ThematicRole. FILTER(?tr!=?trn) ?e1 ?tr ?tv1. ?e2 ?tr ?tv2. FILTER(?tv1!=?tv2)}}"""^^xsd:string].
+
+
+#The following two rules encode ∀ea,e1,e2[and(ea, e1, e2)=>(ropom(ea)<=>(ropom(e1)∧ropom(e2)))], in which ropom is one of the modalities 
+#Rexist, Obligatory, Permitted, and Optional.
+#This rule acts at the first level because RDF semantics includes logical conjunction; therefore, there is no need to introduce an RDF property 
+#":conjunction", similar to ":disjunction", to encode ∧. We just assert Rexist(e1) and Rexist(e2) in the knowledge graph.
+#Conversely, the corresponding rules on the predicates "not" and "or" are listed in the next section, i.e., in the set of rules connecting the 
+#level of the eventualities (1st level) with the level of the statements (2nd level).
+[rdf:type :InferenceRule;
+	:has-sparql-code """
+		CONSTRUCT{?e1 rdf:type ?ropom. ?e2 rdf:type ?ropom}
+		WHERE{?ea :and1 ?e1. ?ea :and2 ?e2. ?ea rdf:type ?ropom. VALUES ?ropom {:Rexist :Obligatory :Permitted :Optional}}"""].
+[rdf:type :InferenceRule;
+	:has-sparql-code """
+		CONSTRUCT{?ea rdf:type ?ropom}
+		WHERE{?ea :and1 ?e1. ?ea :and2 ?e2. ?e1 rdf:type ?ropom. ?e2 rdf:type ?ropom. VALUES ?ropom {:Rexist :Obligatory :Permitted :Optional}}"""].
+
+
+#The following rule implements the Disjunctive Syllogism (((A∨B)∧¬B)=>A) at the level of the eventualities for the Rexist and the Obligatory modality.
+#NB. The Disjunctive Syllogism at the level of the eventuality does not hold for the Permitted modality (nor for the Optional modality). However, 
+#for Permitted the equivalence ∀eo,e1,e2[or(eo, e1, e2)=>(Permitted(eo)<=>(Permitted(e1)∨Permitted(e2)))] hold (see below).
+[rdf:type :InferenceRule;
+	:has-sparql-code """CONSTRUCT{?e2 rdf:type ?rom}
+						WHERE{VALUES ?rom {:Rexist :Obligatory}
+							  ?eo rdf:type ?rom. {?eo :or1 ?e1; :or2 ?e2}UNION{?eo :or1 ?e2; :or2 ?e1}
+							  ?en1 rdf:type ?rom. {?e1 :not ?en1}UNION{?en1 :not ?e1}}"""].
+
+
+#------------------------------------------------------------------------------------------------------------------------------------------------
+# Inference rules at the 2nd level (the level of the statements). Here we must only list rules that enable *paraconsistent* inferences, i.e., 
+# inferences that do *NOT* generate the Ex falso quodlibet.
+#------------------------------------------------------------------------------------------------------------------------------------------------
+
+#The following rule encodes the Disjunctive Syllogism (((A∨B)∧¬B)=>A) at the level of the statements.
+#FILTER and UNION are used to encompass all four combinations (both A and B might true or false).
+[rdf:type :InferenceRule; 
+	:has-sparql-code """
+		CONSTRUCT{?r2 rdf:type :hold}
+		WHERE{{?r1 :disjunction ?r2}UNION{?r2 :disjunction ?r1}
+			  ?r1 rdf:type ?tvr1; rdf:subject ?s; rdf:predicate ?p; rdf:object ?o.
+			  ?rn1 rdf:type :hold,?tvrn1; rdf:subject ?s; rdf:predicate ?p; rdf:object ?o.
+			  FILTER(((?tvr1=:true)&&(?tvrn1=:false))||((?tvr1=:false)&&(?tvrn1=:true)))}"""].
+
+
+#The following rule encodes □A→A: everything that is necessary is true.
+[a :InferenceRule; :has-sparql-code """CONSTRUCT{?s ?p ?o}WHERE{?r a :necessary, :hold; rdf:subject ?s; rdf:predicate ?p; rdf:object ?o}"""].
+
+
+#------------------------------------------------------------------------------------------------------------------------------------------------
+# Inference rules connecting the 1st to the 2nd level: from Hobbs's logic to classical logic and vice versa.
+#------------------------------------------------------------------------------------------------------------------------------------------------
+
+#If the knowledge graph states that the reification of a triple holds *true* in the state of affairs, the following rule directly asserts 
+#the triple in the knowledge graph, to enable further inferences at the level of the eventualities.
+[rdf:type :InferenceRule;
+	:has-sparql-code """
+		CONSTRUCT{?s ?p ?o}
+		WHERE{?r a :true,:hold. ?r rdf:subject ?s. ?r rdf:predicate ?p. ?r rdf:object ?o}"""].
+
+
+#The following two rules state that if one of the two arguments of ":not" really exists (Rexist) the other does not and vice versa 
+#In Hobbs's logic, the two rules below corresponds to the bi-implication Rexist(?e)<=>¬Rexist(?ne).
+[rdf:type :InferenceRule;
+	:has-sparql-code """CONSTRUCT{[rdf:type :false,:hold; rdf:subject ?ne; rdf:predicate rdf:type; rdf:object :Rexist]}
+						WHERE{{?e :not ?ne}UNION{?ne :not ?e.} ?e rdf:type :Rexist.
+							  NOT EXISTS{?f rdf:type :false,:hold; 
+										 rdf:subject ?ne; rdf:predicate rdf:type; rdf:object :Rexist; }}"""^^xsd:string].
+[rdf:type :InferenceRule;
+	:has-sparql-code """CONSTRUCT{?ne rdf:type :Rexist}
+						WHERE{{?e :not ?ne}UNION{?ne :not ?e.}
+							  ?r rdf:type :false,:hold;
+							  rdf:subject ?e; rdf:predicate rdf:type; rdf:object :Rexist.}"""^^xsd:string].
+
+
+#The following two rules encode ∀eo,e1,e2[or(eo, e1, e2)=>(rpom(eo)<=>(rpom(e1)∨rpom(e2)))], in which rpom is Rexist, Permitted, or Optional.
+#These two rule state that if three eventualities eo, e1, and e2 are such that or(eo, e1, e2), then if eo really exists or it is permitted or
+#it is optional, then also the disjunction of the same modality applied to e1 and e2 is so and vice versa.			  
+[rdf:type :InferenceRule; 
+	:has-sparql-code """
+		CONSTRUCT{[rdf:type :true; rdf:subject ?e1; rdf:predicate rdf:type; rdf:object ?rpom] 
+				  :disjunction 
+				  [rdf:type :true; rdf:subject ?e2; rdf:predicate rdf:type; rdf:object ?rpom]}
+		WHERE{?eo :or1 ?e1. ?eo :or2 ?e2. ?eo a ?rpom. VALUES ?rpom {:Rexist :Permitted :Optional}
+			  NOT EXISTS{?r1 rdf:type :true; rdf:predicate rdf:type; rdf:object ?rpom. 
+						 ?r2 rdf:type :true; rdf:predicate rdf:type; rdf:object ?rpom.
+						 {?r1 rdf:subject ?e1. ?r2 rdf:subject ?e2.}UNION{?r1 rdf:subject ?e2. ?r2 rdf:subject ?e1.}}}"""].						 
+[rdf:type :InferenceRule; 
+	:has-sparql-code """
+		CONSTRUCT{?eo a ?rpom}
+		WHERE{{?eo :or1 ?e1. ?eo :or2 ?e2.}UNION{?eo :or1 ?e2. ?eo :or2 ?e1.}
+			  {?e1 rdf:type ?rpom}UNION{?e2 rdf:type ?rpom} VALUES ?rpom {:Rexist :Permitted :Optional}}"""].
+
+
+#------------------------------------------------------------------------------------------------------------------------------------------------
+# Inference rules from the 2nd to the 3nd level: from classical logic to explicit representation of contradictions, conflicts, violations, 
+# and other undesirable consequences (fallacies, mistakes, etc.)
+#------------------------------------------------------------------------------------------------------------------------------------------------
+
+#If the knowledge graph asserts that the eventuality Rexist and does not (i.e., in Hobbs's logic, if Rexist(?e) and ¬Rexist(?e) are both true), 
+#the following rule infers a contradiction between the fact that ?e really exists and the fact that ?e does not really exist.
+[rdf:type :InferenceRule;
+	:has-sparql-code """CONSTRUCT{[rdf:type :true,:hold; rdf:subject ?e; rdf:predicate rdf:type; rdf:object :Rexist]
+								  :is-in-contradiction-with ?r.}
+						WHERE{?e rdf:type :Rexist.
+							  ?r rdf:type :false,:hold; rdf:subject ?e; rdf:predicate rdf:type; rdf:object :Rexist.
+							  NOT EXISTS{{?t :is-in-contradiction-with ?r}UNION{?r :is-in-contradiction-with ?t}
+										 ?t rdf:type :true,:hold;
+										 rdf:subject ?e; rdf:predicate rdf:type; rdf:object :Rexist}}"""^^xsd:string].
+
+
+#If an eventuality ?e has a certain value on a certain thematic role but, at the same time, the knowledge graph asserts that that thematic 
+#role does not have that value, the following rule infers that the fact that the eventuality has that value on that thematic role #is-in-contradiction-with the fact that it does not have it.
+[rdf:type :InferenceRule; :has-sparql-code """
+	CONSTRUCT{[rdf:type :true,:hold; rdf:subject ?e; rdf:predicate ?tr; rdf:object ?tv]:is-in-contradiction-with ?r}
+	WHERE{?tr rdf:type :ThematicRole. ?e ?tr ?tv. ?r rdf:type :false,:hold; rdf:subject ?e; rdf:predicate ?tr; rdf:object ?tv.
+		  NOT EXISTS{{?t :is-in-contradiction-with ?r} UNION {?r :is-in-contradiction-with ?t} 
+					 ?t rdf:type :true,:hold; rdf:subject ?e; rdf:predicate ?tr; rdf:object ?tv}}"""].
+
+					 
+#The following inference rules infers when an obligation is complied with by an eventuality more specific than it and that really exists.
+[rdf:type :InferenceRule; 
+	:has-sparql-code """CONSTRUCT{[rdf:type :true,:hold; rdf:subject ?eo; rdf:predicate rdf:type; rdf:object :Obligatory]
+								  :is-complied-with-by
+								  [rdf:type :true,:hold; rdf:subject ?e; rdf:predicate rdf:type; rdf:object :Rexist]}
+						WHERE{?eo rdf:type :Obligatory, ?c. ?e rdf:type :Rexist, ?c. ?c rdf:type :Eventuality.
+							  NOT EXISTS{?tr rdf:type :ThematicRole. ?eo ?tr ?vo. NOT EXISTS{?e ?tr ?ve}}
+							  NOT EXISTS{?tr rdf:type :ThematicRole. ?eo ?tr ?vo. ?e ?tr ?ve. FILTER(?vo!=?ve)}
+							  NOT EXISTS{?eor :is-complied-with-by ?er.
+										 ?eor rdf:type :true,:hold; rdf:subject ?eo; rdf:predicate rdf:type; rdf:object :Obligatory.
+										 ?er rdf:type :true,:hold; rdf:subject ?e; rdf:predicate rdf:type; rdf:object :Rexist}}"""].
+
+
+#The following inference rules infers when a prohibition, i.e., a non-permission, is violated by an eventuality more specific than it 
+#and that really exists.
+[rdf:type :InferenceRule; 
+	:has-sparql-code """CONSTRUCT{?epr :is-violated-by [a :true,:hold; rdf:subject ?e; rdf:predicate rdf:type; rdf:object :Rexist]}
+						WHERE{?epr rdf:type :false,:hold; rdf:subject ?ep; rdf:predicate rdf:type; rdf:object :Permitted.
+							  ?ep rdf:type ?c. ?e rdf:type :Rexist, ?c. ?c rdf:type :Eventuality.
+							  NOT EXISTS{?tr rdf:type :ThematicRole. ?ep ?tr ?vp. NOT EXISTS{?e ?tr ?ve}}
+							  NOT EXISTS{?tr rdf:type :ThematicRole. ?ep ?tr ?vp. ?e ?tr ?ve. FILTER(?vp!=?ve)}
+							  NOT EXISTS{?epr :is-violated-by ?te. 
+										 ?te rdf:type :true,:hold; rdf:subject ?e; rdf:predicate rdf:type; rdf:object :Rexist}}"""].
+
+
+#The following inference rules infers when a prohibition, i.e., a non-permission, is in conflict with a permission. Note that the
+#permission could be possible inferred from an obligation in virtue of the entailment OB(p)=>PE(p) of the Deontic Traditional Scheme.
+[rdf:type :InferenceRule; :has-sparql-code """
+	CONSTRUCT{?enr :is-in-conflict-with [a :true,:hold; rdf:subject ?e; rdf:predicate rdf:type; rdf:object :Permitted]}
+	WHERE{?enr a :false,:hold; rdf:subject ?en; rdf:predicate rdf:type; rdf:object :Permitted.
+		  ?en a ?c. ?e a :Permitted, ?c. ?c a :Eventuality.
+		  NOT EXISTS{?tr a :ThematicRole. ?en ?tr ?vn. NOT EXISTS{?e ?tr ?vp}}
+		  NOT EXISTS{?tr a :ThematicRole. ?en ?tr ?vn. ?e ?tr ?vp. FILTER(?vn!=?vp)}
+		  NOT EXISTS{?enr :is-in-conflict-with ?te. ?te rdf:type :true,:hold;
+					 rdf:subject ?e; rdf:predicate rdf:type; rdf:object :Permitted}}"""].
+
+
+#The following inference rules infers when a prohibition, i.e., a non-permission, is necessarily violated by a constraint from the context,
+#i.e., by the fact that something must be necessarily done in a way that violates the prohibition. For example, when it is necessary to pay 
+#in cash but, at the same time, it is prohibited to pay in cash.
+[rdf:type :InferenceRule; :has-sparql-code """
+	CONSTRUCT{?rep :is-necessarily-violated-by ?ren}
+	WHERE{?trn rdf:type :ThematicRole. ?en ?trn ?vn. ?ren rdf:type :necessary,:hold; rdf:subject ?en; rdf:predicate ?trn; rdf:object ?vn.
+		  ?rep rdf:type :false,:hold; rdf:subject ?ep; rdf:predicate rdf:type; rdf:object :Permitted.
+		  ?en rdf:type ?c. ?ep rdf:type ?c. ?c rdf:type :Eventuality.
+		  NOT EXISTS{?tr rdf:type :ThematicRole. ?en ?tr ?vn. NOT EXISTS{?ep ?tr ?vp}}
+		  NOT EXISTS{?tr rdf:type :ThematicRole. ?en ?tr ?vn. ?ep ?tr ?vp. FILTER(?vn!=?vp)}}"""].
+
+
+#------------------------------------------------------------------------------------------------------------------------------------------------
+# Inference rules from the Deontic Traditional Scheme: 
+# Some of these rules connect the 1st level with the 2nd level, the others make inferences only on either of the two levels.
+#------------------------------------------------------------------------------------------------------------------------------------------------
+
+#The following rule implements the derivations PE(p)=>¬OB(¬p) and OB(¬p)=>¬PE(p) of the Deontic Traditional Scheme.
+#Note that this rule create triples in the 2nd level out of triples in the 1st level.
+[rdf:type :InferenceRule;
+	:has-sparql-code """
+		CONSTRUCT{[a :false,:hold; rdf:subject ?ne; rdf:predicate rdf:type; rdf:object ?ddm]}
+		WHERE{{?e :not ?ne}UNION{?ne :not ?e} 
+			  {?e rdf:type :Obligatory. BIND(:Permitted AS ?ddm)}UNION{?e rdf:type :Permitted. BIND(:Obligatory AS ?ddm)}
+			  NOT EXISTS{?f a :false,:hold; rdf:subject ?ne; rdf:predicate rdf:type; rdf:object ?ddm}}"""].
+
+
+#The following rule implements the derivations ¬OB(¬p)=>PE(p) and ¬PE(p)=>OB(¬p) of the Deontic Traditional Scheme.
+#Note that this rule create triples in the 1st level out of triples in the 2nd level.
+[rdf:type :InferenceRule;
+	:has-sparql-code """
+		CONSTRUCT{?ne rdf:type ?ddm}
+		WHERE{{?e :not ?ne}UNION{?ne :not ?e} 
+			  ?r a :false,:hold; rdf:subject ?e; rdf:predicate rdf:type.
+			  {?r rdf:object :Obligatory. BIND(:Permitted AS ?ddm)}UNION
+			  {?r rdf:object :Permitted. BIND(:Obligatory AS ?ddm)}}"""].
+
+
+#The following two rules implements the derivation OP(p)=>(¬OB(p)∧¬OB(¬p)) of the Deontic Traditional Scheme.
+#Note that the first of the two rules creates triples in the 2nd level out of triples in the 1st level. Conversely,
+#the second rule creates triples in the 1st level out of triples in the 2nd level.
+[rdf:type :InferenceRule;
+	:has-sparql-code """
+		CONSTRUCT{[a :false,:hold; rdf:subject ?e; rdf:predicate rdf:type; rdf:object :Obligatory]}
+		WHERE{?e rdf:type :Optional. {?e :not ?ne}UNION{?ne :not ?e}
+			  NOT EXISTS{?f rdf:type :false,:hold; rdf:subject ?e; rdf:predicate rdf:type; rdf:object :Obligatory}}"""].
+[rdf:type :InferenceRule;
+	:has-sparql-code """
+		CONSTRUCT{[a :false,:hold; rdf:subject ?ne; rdf:predicate rdf:type; rdf:object :Obligatory]}
+		WHERE{?e rdf:type :Optional. {?e :not ?ne}UNION{?ne :not ?e}
+			  NOT EXISTS{?f rdf:type :false,:hold; rdf:subject ?ne; rdf:predicate rdf:type; rdf:object :Obligatory}}"""].
+
+
+#The following rule implements the derivation (¬OB(p)∧¬OB(¬p))=>OP(p) of the Deontic Traditional Scheme.
+#Note that this rule create triples in the 1st level out of triples in the 2nd level.
+[rdf:type :InferenceRule;
+	:has-sparql-code """
+		CONSTRUCT{?e rdf:type :Optional. ?ne rdf:type :Optional}
+		WHERE{{?e :not ?ne}UNION{?ne :not ?e}
+			  ?r1 a :false,:hold; rdf:subject ?e; rdf:predicate rdf:type; rdf:object :Obligatory.
+			  ?r2 a :false,:hold; rdf:subject ?ne; rdf:predicate rdf:type; rdf:object :Obligatory.}"""].
+
+
+#The following two rules implements the derivation (OB(p)∨OB(¬p))=>¬OP(p) of the Deontic Traditional Scheme.
+#Note that the first of the two rules creates triples in the 2nd level out of triples in the 1st level. Conversely,
+#the second rule creates triples in the 1st level out of triples in the 2nd level.
+[rdf:type :InferenceRule; :has-sparql-code """
+	CONSTRUCT{[a :false,:hold; rdf:subject ?e; rdf:predicate rdf:type; rdf:object :Optional]}
+	WHERE{?e a :Obligatory. {?e :not ?ne}UNION{?ne :not ?e}
+		  NOT EXISTS{?f a :false,:hold; rdf:subject ?e; rdf:predicate rdf:type; rdf:object :Optional}}"""].
+[rdf:type :InferenceRule; :has-sparql-code """
+	CONSTRUCT{[a :false,:hold; rdf:subject ?ne; rdf:predicate rdf:type; rdf:object :Optional]}
+	WHERE{?e a :Obligatory. {?e :not ?ne}UNION{?ne :not ?e}
+		  NOT EXISTS{?f a :false,:hold; rdf:subject ?ne; rdf:predicate rdf:type; rdf:object :Optional}}"""].
+
+
+#The following rule implements the derivation ¬OP(p)=>(OB(p)∨OB(¬p)) of the Deontic Traditional Scheme.
+#Note that this rule create triples in the 2nd level out of triples in the 2nd level.
+[rdf:type :InferenceRule; 
+	:has-sparql-code """
+		CONSTRUCT{[rdf:type :true; rdf:subject ?e; rdf:predicate rdf:type; rdf:object :Obligatory]
+				  :disjunction
+				  [rdf:type :true; rdf:subject ?ne; rdf:predicate rdf:type; rdf:object :Obligatory]}
+		WHERE{{?e :not ?ne}UNION{?ne :not ?e} 
+			  ?r rdf:type :false,:hold; rdf:subject ?e; rdf:predicate rdf:type; rdf:object :Optional.
+			  NOT EXISTS{?e rdf:type :Obligatory} NOT EXISTS{?ne rdf:type :Obligatory}
+			  NOT EXISTS{{?r1 :disjunction ?r2}UNION{?r2 :disjunction ?r1}
+						 ?r1 rdf:type :true; rdf:subject ?e; rdf:predicate rdf:type; rdf:object :Obligatory. 
+						 ?r2 rdf:type :true; rdf:subject ?ne; rdf:predicate rdf:type; rdf:object :Obligatory.}}"""].
+						 
+
+#The following rule implements the derivation OB(p)=>PE(p) of the Deontic Traditional Scheme.
+#Note that this rule create triples in the 1st level out of triples in the 1st level.
+[rdf:type :InferenceRule;
+	:has-sparql-code """CONSTRUCT{?e a :Permitted} WHERE{?e a :Obligatory}"""].
+
+
+#The following rule implements the derivation ¬PE(p)=>¬OB(p) of the Deontic Traditional Scheme.
+#Note that this rule create triples in the 2nd level out of triples in the 2nd level.
+[rdf:type :InferenceRule;
+	:has-sparql-code """
+		CONSTRUCT{[a :false,:hold; rdf:subject ?e; rdf:predicate rdf:type; rdf:object :Obligatory]} 
+		WHERE{?r a :false, :hold; rdf:subject ?e; rdf:predicate rdf:type; rdf:object :Permitted.
+			  NOT EXISTS{?f a :false,:hold; rdf:subject ?e; rdf:predicate rdf:type; rdf:object :Obligatory}}"""].
