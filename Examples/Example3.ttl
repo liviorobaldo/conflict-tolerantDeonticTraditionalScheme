@@ -1,0 +1,46 @@
+@prefix : <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+@prefix : <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix soa: <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme/soa#> .
+@base <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+
+
+########################################################################################################################################
+# Description:
+#---------------------------------------------------------------------------------------------------------------------------------------
+# The example below encode the two sentences:
+# (1) "John leaves or John eats and drinks."
+# (2) "John does not leave."
+# The inferred graph specifies that "John eats" and "John drinks". This is achieved by inferring, from (2), that
+# "John leaves" holds false, then from this and (1) it inferred that "John eats and drink" holds true and then 
+# that "John eats" and "John drinks" really exists.
+########################################################################################################################################
+
+
+########################################################################################################################################
+# Eventuality types and thematic roles
+########################################################################################################################################
+
+soa:Leave rdf:type rdfs:Class, :Eventuality.
+soa:Eat rdf:type rdfs:Class, :Eventuality.
+soa:Drink rdf:type rdfs:Class, :Eventuality.
+soa:has-agent rdf:type rdf:Property, :ThematicRole.
+
+
+########################################################################################################################################
+# Input facts:
+########################################################################################################################################
+
+#John leaves or John eats and drinks:
+soa:eo rdf:type :Rexist.
+soa:eo :or1 soa:elj. soa:eo :or2 soa:ea.
+soa:ea :and1 soa:eej. soa:ea :and2 soa:edj.
+soa:elj rdf:type soa:Leave; soa:has-agent soa:John.
+soa:eej rdf:type soa:Eat; soa:has-agent soa:John.
+soa:edj rdf:type soa:Drink; soa:has-agent soa:John.
+
+#John does not leave.
+soa:enlj :not soa:elj; rdf:type :Rexist.

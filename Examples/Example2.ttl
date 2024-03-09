@@ -1,0 +1,57 @@
+@prefix : <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+@prefix : <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix soa: <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme/soa#> .
+@base <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+
+########################################################################################################################################
+# Description:
+#---------------------------------------------------------------------------------------------------------------------------------------
+# This example contains these two sentences:
+# - (1) "John pays in cash" and (2) "John pays by card".
+# In which it is assumed that (1) and (2) refers to the same payment by John or, in Hobbs' terms, that they are different 
+# instantiations of the same abstract eventuality. The two instantiations differ only for the instrument used to make the payment 
+# (cash rather than card), which are of course incompatible of one another: either John pays in cash or by card.
+# Given this assumption, in the inferred knowledge graph it will be derived that:
+# - From (1), that (3) "John does not pay by card", i.e., that the fact that John pays by card does not really exist.
+# - From (1), that (4) "John does not pay by cash", i.e., that the fact that John pays by cash does not really exist.
+# - Then, it is inferred that (2) and (3) are in contradiction and that (1) and (4) are in contradiction.
+########################################################################################################################################
+
+
+########################################################################################################################################
+# Eventuality types and thematic roles
+########################################################################################################################################
+
+soa:Pay rdf:type rdfs:Class, :Eventuality.
+soa:has-agent rdf:type rdf:Property, :ThematicRole.
+soa:has-object rdf:type rdf:Property, :ThematicRole.
+soa:has-instrument rdf:type rdf:Property, :ThematicRole.
+
+########################################################################################################################################
+# Input facts:
+########################################################################################################################################
+
+
+#John makes the payment epj in cash.
+soa:epjcash rdf:type soa:Pay, :Rexist; soa:has-instrument soa:cash.
+
+#John makes the payment epj by card.
+soa:epjcard rdf:type soa:Pay, :Rexist; soa:has-instrument soa:card.
+
+#The following (domain knowledge) SPARQL rule states that if the payment has been done by cash, it is false that it has been done by card.
+#In Hobbs': Ve[(Pay(e)^has-instrument(e,cash))=>¬has-instrument(e,card)].
+[rdf:type :InferenceRule;
+	:has-sparql-code """CONSTRUCT{[rdf:type :false,:hold; rdf:subject ?e; rdf:predicate soa:has-instrument; rdf:object soa:card]}
+						WHERE{?e soa:has-instrument soa:cash
+						  NOT EXISTS{?r rdf:type :false,:hold; rdf:subject ?e; rdf:predicate soa:has-instrument; rdf:object soa:card}}"""^^xsd:string].
+						
+#The following SPARQL rule states that if the payment has been done by cash, it is false that it has been done by card.
+#In Hobbs': Ve[(Pay(e)^has-instrument(e,card))=>¬has-instrument(e,cash)].
+[rdf:type :InferenceRule;
+	:has-sparql-code """CONSTRUCT{[rdf:type :false,:hold; rdf:subject ?e; rdf:predicate soa:has-instrument; rdf:object soa:cash]}
+						WHERE{?e soa:has-instrument soa:card
+						  NOT EXISTS{?r rdf:type :false,:hold; rdf:subject ?e; rdf:predicate soa:has-instrument; rdf:object soa:cash}}"""^^xsd:string].
