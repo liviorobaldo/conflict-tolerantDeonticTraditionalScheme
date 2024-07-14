@@ -7,7 +7,7 @@ This repository contains the computational ontology proposed in the paper as wel
 </p>
 
 <p align="justify">
-To re-execute the examples locally you must have Java installed. The source code downloadable from this GitHub repository has been developed using Java v19 but it should work also with other versions of the Java Runtime Environment.
+To re-execute the examples locally you must have Java installed. The source code downloadable from this GitHub repository has been developed using Java v19 but it should also work with other versions of the Java Runtime Environment.
 </p>
 
 <p align="justify">
