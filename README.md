@@ -1,5 +1,5 @@
 <p align="justify">
-This is the GitHub repository associated with the paper "Compliance checking in the Semantic Web: an RDF-based conflict-tolerant version of the Deontic Traditional Scheme", by Livio Robaldo and Gianluca Pozzato.
+This is the GitHub repository associated with the paper "Handling irresolvable conflicts in the Semantic Web: an RDF-based conflict-tolerant version of the Deontic Traditional Scheme", by Livio Robaldo and Gianluca Pozzato.
 </p>
 
 <p align="justify">
