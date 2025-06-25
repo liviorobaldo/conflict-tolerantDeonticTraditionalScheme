@@ -1,0 +1,51 @@
+@prefix : <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix soa: <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme/soa#> .
+@base <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+
+
+####################################################################################################################################################
+# Description:
+#---------------------------------------------------------------------------------------------------------------------------------------------------
+# This example contains the following statements:
+# - (1) "John pays at the parking meter linked to the parking spot in Sketty".
+# - (2) "The instrument of every paying action to the parking meter in Sketty is necessarily cash".	
+# - (3) "It is prohibited to pay in cash" (meaning that everyone is always prohibited from using cash for payments).
+# From (1) and (2), it is inferred that (4) John pays in cash. From (3) and (4), it follows that the fact John is prohibited from
+# paying in cash is violated by the fact that he pays in cash. In addition, from (2) and (4), it is also inferred that it is *necessary*
+# for John to violate the prohibition in (3), so he perhaps should not be sanctioned for it.
+####################################################################################################################################################
+
+####################################################################################################################################################
+# Eventuality types and thematic roles
+####################################################################################################################################################
+
+soa:Pay rdf:type rdfs:Class, :EventualityType.
+soa:has-agent rdf:type rdf:Property, :ThematicRole.
+soa:has-instrument rdf:type rdf:Property, :ThematicRole.
+soa:has-recipient rdf:type rdf:Property, :ThematicRole.
+
+####################################################################################################################################################
+# Input facts:
+####################################################################################################################################################
+
+#John pays at the parking meter linked to the parking spot in Sketty
+soa:epsj rdf:type soa:Pay,:Rexist; soa:has-agent soa:John; soa:has-recipient soa:pmSketty. 
+soa:psSketty rdf:type soa:parkingSpot.
+soa:pmSketty soa:associated-with soa:psSketty.
+
+#The instrument of every payment made at a parking meter in Sketty is necessarily cash
+[rdf:type :InferenceRule; :has-sparql-code """
+	CONSTRUCT{<<?ep soa:has-instrument soa:cash>> rdf:type :necessary}
+	WHERE{?ep rdf:type soa:Pay; soa:has-recipient ?pm. ?pm soa:associated-with soa:psSketty}"""].
+
+#It is prohibited to pay in cash
+[rdf:type :InferenceRule; :has-sparql-code """
+	CONSTRUCT{<<?eppca rdf:type :Permitted>> rdf:type :false.
+			  ?eppca rdf:type soa:Pay; soa:has-agent ?a; soa:has-instrument soa:cash}
+	WHERE{?e soa:has-agent ?a. BIND(BNode() AS ?eppca)
+		  NOT EXISTS{<<?eppcar rdf:type :Permitted>> rdf:type :false. 
+					 ?eppcar rdf:type soa:Pay; soa:has-agent ?a; soa:has-instrument soa:cash}}"""].

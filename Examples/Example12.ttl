@@ -1,0 +1,38 @@
+@prefix : <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix soa: <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme/soa#> .
+@base <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+
+
+########################################################################################################################################
+# Description:
+#---------------------------------------------------------------------------------------------------------------------------------------
+# This example contains the following statements:
+# - (1) "John is obliged to pay £3 in cash" 
+# - (2) "John does not pay"
+# It is inferred that (2) violates the obligation in (1): if John does not pay, then he fails to pay any amount of money by any means.
+########################################################################################################################################
+
+
+########################################################################################################################################
+# Eventuality types and thematic roles
+########################################################################################################################################
+
+soa:Pay rdf:type rdfs:Class, :EventualityType.
+soa:has-agent rdf:type rdf:Property, :ThematicRole.
+soa:has-object rdf:type rdf:Property, :ThematicRole.
+soa:has-instrument rdf:type rdf:Property, :ThematicRole.
+
+
+########################################################################################################################################
+# Input facts:
+########################################################################################################################################
+
+#John is obliged to pay £3 in cash
+soa:eopj3c rdf:type :Obligatory, soa:Pay; soa:has-agent soa:John; soa:has-object soa:3pounds; soa:has-instrument soa:cash.
+
+#John does not pay
+<<soa:ejnp rdf:type :Subsist>> rdf:type :false. soa:ejnp rdf:type soa:Pay; soa:has-agent soa:John.

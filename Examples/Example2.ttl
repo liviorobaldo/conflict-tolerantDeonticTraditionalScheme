@@ -1,0 +1,43 @@
+@prefix : <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix soa: <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme/soa#> .
+@base <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+
+
+########################################################################################################################################
+# Description:
+#---------------------------------------------------------------------------------------------------------------------------------------
+# This file presents a complex example illustrating the axioms for ¬, ∧, and ∨ as implemented in the proposed computational ontology,
+# i.e., the two De Morgan's laws ¬(P1∧P2)→(¬P1∨¬P2) and ¬(P1∨P2)→(¬P1∧¬P2), as well as the Disjunctive Syllogism ((P1∨P2)∧¬P1)→P2.
+# The example below includes the corresponding representations of the following first-order logic formulae:
+#  - (1) Rexist(e1)∨¬(Rexist(e2)∧¬Rexist(e3))
+#  - (2) ¬Rexist(e1)
+#  - (3) Rexist(e2)
+# From (1) and (2), ¬(Rexist(e2)∧¬Rexist(e3)) is derived using Disjunctive Syllogism. Applying one of De Morgan's laws, this leads 
+# to ¬Rexist(e2)∨Rexist(e3). Finally, combining this with (3), Rexist(e3) is derived again via Disjunctive Syllogism.
+########################################################################################################################################
+
+
+########################################################################################################################################
+# Input facts:
+########################################################################################################################################
+
+#Rexist(e1)∨¬(Rexist(e2)∧¬Rexist(e3))
+<< <<soa:e1 rdf:type :Rexist>> rdf:type :true>> 
+:disjunction
+<<
+	<<
+		<<<<soa:e2 rdf:type :Rexist>> rdf:type :true>> 
+		:conjunction
+		<<<<soa:e3 rdf:type :Rexist>> rdf:type :false>>
+	>> rdf:type :false
+>>.
+
+#¬Rexist(e1)
+<<soa:e1 rdf:type :Rexist>> rdf:type :false.
+
+#Rexist(e2)
+soa:e2 rdf:type :Rexist.

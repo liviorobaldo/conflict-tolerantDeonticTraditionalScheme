@@ -1,0 +1,42 @@
+@prefix : <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix soa: <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme/soa#> .
+@base <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+
+
+########################################################################################################################################
+# Description:
+#---------------------------------------------------------------------------------------------------------------------------------------
+# This example contains the following statements:
+# - (1) "Yesterday, John paid in cash" 
+# - (2) "Yesterday, John was not permitted to pay in cash"
+# (1) is intended as an abstract eventuality that we can deduce from the fact that John had some cash yesterday and now has none; 
+# therefore, he spent it. From (1) and (2), it is inferred that the prohibition in (2) has been violated by the abstract eventuality 
+# in (1): if John spent the cash he had yesterday, he made at least one cash payment, thereby violating (2).
+########################################################################################################################################
+
+
+########################################################################################################################################
+# Eventuality types and thematic roles
+########################################################################################################################################
+
+soa:Pay rdf:type rdfs:Class, :EventualityType.
+soa:has-agent rdf:type rdf:Property, :ThematicRole.
+soa:has-object rdf:type rdf:Property, :ThematicRole.
+soa:has-instrument rdf:type rdf:Property, :ThematicRole.
+soa:has-time rdf:type rdf:Property, :ThematicRole.
+
+
+########################################################################################################################################
+# Input facts:
+########################################################################################################################################
+
+#Yesterday, John paid in cash
+soa:eay rdf:type :Subsist, soa:Pay; soa:has-agent soa:John; soa:has-time soa:Y; soa:has-instrument soa:cash.
+
+#Yesterday, John was not permitted to pay in cash
+<<soa:epy rdf:type :Permitted>> rdf:type :false.
+soa:epy rdf:type soa:Pay; soa:has-agent soa:John; soa:has-time soa:Y; soa:has-instrument soa:cash.

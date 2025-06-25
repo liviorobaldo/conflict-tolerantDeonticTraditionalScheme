@@ -1,0 +1,38 @@
+@prefix : <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+@prefix : <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix soa: <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme/soa#> .
+@base <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+
+
+########################################################################################################################################
+# Description:
+#---------------------------------------------------------------------------------------------------------------------------------------
+# This example contains the following statements:
+# - (1) "It is optional for John to leave".
+# - (2) "John is not permitted to leave".
+# The SPARQL rules defined infers: 
+# - From (1), that (3) "John is not obliged to leave" and (4) "John is not obliged to not leave" [OP(p)=>(¬OB(p)∧¬OB(¬p))].
+# - From (3) and (4), that (5) "John is permitted to not leave" and (6) "John is permitted to leave" [¬OB(¬p)=>PE(p)]. 
+# Finally, it is inferred that (2) and (6) are in conflict of one another.
+########################################################################################################################################
+
+########################################################################################################################################
+# Eventuality types and thematic roles
+########################################################################################################################################
+
+soa:Leave rdf:type rdfs:Class, :Eventuality.
+soa:has-agent rdf:type rdf:Property, :ThematicRole.
+
+########################################################################################################################################
+# Input facts:
+########################################################################################################################################
+
+#It is optional for John to leave.
+soa:elj rdf:type soa:Leave,:Optional; soa:has-agent soa:John; :not soa:enlj.
+
+#John is not permitted to leave.
+[rdf:type :false,:hold; rdf:subject soa:elj; rdf:predicate rdf:type; rdf:object :Permitted].

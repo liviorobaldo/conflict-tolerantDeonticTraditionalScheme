@@ -1,0 +1,40 @@
+@prefix : <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix soa: <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme/soa#> .
+@base <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+
+
+########################################################################################################################################
+# Description:
+#---------------------------------------------------------------------------------------------------------------------------------------
+# This example contains the following statements:
+# - (1) "John is prohibited to not pay" 
+# - (2) "John pays £3"
+# From (1), it is inferred that (3) "John is obliged to pay". Then, from (2) and (3) it is inferred that the fact that John pays £3
+# complies with the fact that he is obliged to pay.
+########################################################################################################################################
+
+
+########################################################################################################################################
+# Eventuality types and thematic roles
+########################################################################################################################################
+
+soa:Pay rdf:type rdfs:Class, :EventualityType.
+soa:has-agent rdf:type rdf:Property, :ThematicRole.
+soa:has-object rdf:type rdf:Property, :ThematicRole.
+soa:has-instrument rdf:type rdf:Property, :ThematicRole.
+
+
+########################################################################################################################################
+# Input facts:
+########################################################################################################################################
+
+#John is prohibited to not pay
+<<soa:enpj rdf:type :Permitted>> rdf:type :false. soa:enpj :not soa:epj.
+soa:epj rdf:type soa:Pay; soa:has-agent soa:John.
+
+#John pays £3
+soa:epj3 rdf:type soa:Pay,:Rexist; soa:has-agent soa:John; soa:has-object soa:3pounds.

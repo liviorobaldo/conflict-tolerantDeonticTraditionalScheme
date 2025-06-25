@@ -1,0 +1,52 @@
+@prefix : <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix soa: <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme/soa#> .
+@base <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+
+########################################################################################################################################
+# Description:
+#---------------------------------------------------------------------------------------------------------------------------------------
+# This example contains the following two sentences:
+# - (1) "John is obliged to pay in cash" and (2) "John is obliged to pay by card".
+# It is assumed that (1) and (2) refer to the same payment made by John, or, in Hobbs' terms, that they are different 
+# instantiations of the same abstract eventuality. The two instantiations differ only in the instrument used to make 
+# the payment (cash versus card) which are, of course, mutually exclusive: John can either pays in cash or by card.
+# Given this assumption, the inferred knowledge graph symmetrically derives the following:
+# - From (1), it is inferred that (3) "John is permitted to pay in cash" and (4) "John is not permitted to pay by card".
+# - From (2), it is inferred that (5) "John is permitted to pay by card" and (6) "John is not permitted to pay in cash".
+# - As a result, it is symmetrically inferred that (3) and (6) are in conflict and so are (4) and (5).
+########################################################################################################################################
+
+
+########################################################################################################################################
+# Eventuality types and thematic roles
+########################################################################################################################################
+
+soa:Pay rdf:type rdfs:Class, :EventualityType.
+soa:has-agent rdf:type rdf:Property, :ThematicRole.
+soa:has-instrument rdf:type rdf:Property, :ThematicRole.
+
+########################################################################################################################################
+# Input facts:
+########################################################################################################################################
+
+#John is obliged to pay in cash.
+soa:epojcash rdf:type soa:Pay, :Obligatory; soa:has-agent soa:John; soa:has-instrument soa:cash.
+
+#John makes the payment epj by card.
+soa:epojcard rdf:type soa:Pay, :Obligatory; soa:has-agent soa:John; soa:has-instrument soa:card.
+
+#The following SPARQL* rule states that if the payment has been done in cash, it is false that it has been done by card.
+#In Hobbs': Ve[(Pay(e)^has-instrument(e,cash))=>¬has-instrument(e,card)].
+[rdf:type :InferenceRule;
+	:has-sparql-code """CONSTRUCT{<<?e soa:has-instrument soa:card>> rdf:type :false}
+						WHERE{?e rdf:type soa:Pay; soa:has-instrument soa:cash}"""^^xsd:string].
+						
+#The following SPARQL* rule states that if the payment has been done by card, it is false that it has been done in cash.
+#In Hobbs': Ve[(Pay(e)^has-instrument(e,card))=>¬has-instrument(e,cash)].
+[rdf:type :InferenceRule;
+	:has-sparql-code """CONSTRUCT{<<?e soa:has-instrument soa:cash>> rdf:type :false}
+						WHERE{?e rdf:type soa:Pay; soa:has-instrument soa:card}"""^^xsd:string].

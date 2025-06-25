@@ -1,0 +1,43 @@
+@prefix : <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix soa: <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme/soa#> .
+@base <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+
+
+########################################################################################################################################
+# Description:
+#---------------------------------------------------------------------------------------------------------------------------------------
+# This example contains two pairs of contradictory facts:
+# - (1) "John pays £3 in cash" and (2) "John does not pay".
+# The inferred knowledge graph derives that (1) contradicts (2). Inferring this contradiction is possible only under the (contextual) 
+# assumption that both sentences refer to what John is doing "here" and "now". This contextual assumption is inferred by one of the 
+# two pragmatic implicatures stored in the ontology.
+########################################################################################################################################
+
+
+########################################################################################################################################
+# Eventuality types and thematic roles
+########################################################################################################################################
+
+soa:Pay rdf:type rdfs:Class, :EventualityType.
+soa:has-agent rdf:type rdf:Property, :ThematicRole.
+soa:has-object rdf:type rdf:Property, :ThematicRole.
+soa:has-instrument rdf:type rdf:Property, :ThematicRole.
+
+
+########################################################################################################################################
+# Input facts:
+########################################################################################################################################
+
+#John pays £3 in cash:
+soa:epj rdf:type :Rexist, soa:Pay; soa:has-agent soa:John; soa:has-object soa:3pounds; soa:has-instrument soa:cash.
+
+#John does not pay:
+soa:enpja :not soa:epja; rdf:type :Subsist. 
+soa:epja rdf:type soa:Pay; soa:has-agent soa:John.
+
+
+

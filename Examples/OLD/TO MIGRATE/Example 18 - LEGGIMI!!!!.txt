@@ -1,0 +1,4 @@
+Controlla bene le varianti dello Smith argument, che sono adesso in Example5.
+
+La Roberts variant pare abbia anche un conflitto... controlla che ci sia,
+perchè quando le ho fatte la prima volta non avevo ancora aggiunto le regole per inferire i conflitt...

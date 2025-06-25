@@ -1,0 +1,43 @@
+@prefix : <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix soa: <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme/soa#> .
+@base <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+
+
+########################################################################################################################################
+# Description:
+#---------------------------------------------------------------------------------------------------------------------------------------
+# This file contains simple examples of how standard logic is embedded in the proposed computational ontology, including the 
+# *proof theory*, i.e., the interpretative rules used to associate formulae with their semantics (semantic embedding).
+# There are two examples:
+#  - (1) "The square is red" and (2) "It is false that the square is red".
+#  - (3) "Yoof is a dog" and (4) "Yoof is a cat".
+# A contradiction is derived from (1) and (2). A contradiction is also derived from (3) and (4), but to enable this,
+# an additional rule is introduced in the state of affairs to represent that:
+#  - (5) "The set of dogs and the set of cats are disjoint".
+########################################################################################################################################
+
+
+########################################################################################################################################
+# Input facts:
+########################################################################################################################################
+
+#The square is red.
+soa:square rdf:type soa:Red.
+
+#It is false that the square is red.
+<<soa:square rdf:type soa:Red>> rdf:type :false.
+
+#Yoof is a dog.
+soa:Yoof rdf:type soa:Dog.
+
+#Yoof is a cat.
+soa:Yoof rdf:type soa:Cat.
+
+#The set of dogs and the set of cats are disjoint. If an individual ?i belongs to both sets, a contradiction is inferred.
+[a :InferenceRule; :has-sparql-code """
+	CONSTRUCT{<<?i rdf:type soa:Dog>> :is-in-contradiction-with <<?i rdf:type soa:Cat>>}
+	WHERE{?i rdf:type soa:Dog, soa:Cat}"""].

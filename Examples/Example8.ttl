@@ -1,0 +1,45 @@
+@prefix : <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix soa: <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme/soa#> .
+@base <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+
+
+####################################################################################################################################################
+# Description:
+#---------------------------------------------------------------------------------------------------------------------------------------------------
+# This example contains the following statements:
+# - (1) "Whoever parks in a parking spot is obliged to pay £3 at the parking meter associated with that spot".
+# - (2) "John parks in Sketty".	
+# From (1) and (2), it is inferred that "John is obliged to pay £3 at the parking meter in Sketty".
+####################################################################################################################################################
+
+####################################################################################################################################################
+# Eventuality types and thematic roles
+####################################################################################################################################################
+
+soa:Park rdf:type rdfs:Class, :EventualityType.
+soa:Pay rdf:type rdfs:Class, :EventualityType.
+soa:has-agent rdf:type rdf:Property, :ThematicRole.
+soa:has-location rdf:type rdf:Property, :ThematicRole.
+soa:has-instrument rdf:type rdf:Property, :ThematicRole.
+soa:has-recipient rdf:type rdf:Property, :ThematicRole.
+
+####################################################################################################################################################
+# Input facts:
+####################################################################################################################################################
+
+#John parks in Sketty.
+soa:epkj rdf:type soa:Park, :Rexist; soa:has-agent soa:John; soa:has-location soa:psSketty.
+soa:psSketty rdf:type soa:parkingSpot.
+soa:pmSketty soa:associated-with soa:psSketty.
+
+#Whoever parks in a parking spot is obliged to pay £3 at the parking meter associated with that spot.
+[rdf:type :InferenceRule; :has-sparql-code """
+	CONSTRUCT{?e2 rdf:type soa:Pay,:Obligatory; soa:has-agent ?a; soa:has-object soa:3pounds; soa:has-recipient ?pm}
+	WHERE{?e1 rdf:type soa:Park,:Rexist; soa:has-agent ?a; soa:has-location ?p.
+		  ?p rdf:type soa:parkingSpot. ?pm soa:associated-with ?p
+		  BIND(BNode() AS ?e2) NOT EXISTS{?er2 a soa:Pay,:Obligatory; soa:has-agent ?a; soa:has-object soa:3pounds; soa:has-recipient ?pm}}"""].
+

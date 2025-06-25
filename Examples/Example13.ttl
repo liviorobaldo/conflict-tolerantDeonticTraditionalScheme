@@ -1,0 +1,37 @@
+@prefix : <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix soa: <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme/soa#> .
+@base <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+
+
+########################################################################################################################################
+# Description:
+#---------------------------------------------------------------------------------------------------------------------------------------
+# This example contains the following statements:
+# - (1) "It is optional for John to leave the building" 
+# - (2) "John is not permitted to leave the building"
+# From (1), it is inferred that (3) John is not obliged to leave the building and that he is not obliged to not leave the building;
+# From (3), it is then inferred that (4) John is permitted to leave the building and that he is permitted to not leave the building.
+# Finally, a conflict is inferred between (2) and (4).
+########################################################################################################################################
+
+
+########################################################################################################################################
+# Eventuality types and thematic roles
+########################################################################################################################################
+
+soa:Leave rdf:type rdfs:Class, :EventualityType.
+soa:has-agent rdf:type rdf:Property, :ThematicRole.
+
+########################################################################################################################################
+# Input facts:
+########################################################################################################################################
+
+#It is optional for John to leave the building
+soa:elj rdf:type soa:Leave,:Optional; soa:has-agent soa:John; soa:has-from-location soa:B; :not soa:enlj.
+
+#John is not permitted to leave the building
+<<soa:elpj rdf:type :Permitted>> rdf:type :false. soa:elpj a soa:Leave; soa:has-agent soa:John; soa:has-from-location soa:B.

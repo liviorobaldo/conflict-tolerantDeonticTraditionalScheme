@@ -1,0 +1,43 @@
+@prefix : <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix soa: <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme/soa#> .
+@base <https://w3id.org/ontology/conflict-tolerantdeontictraditionalscheme#> .
+
+
+########################################################################################################################################
+# Description:
+#---------------------------------------------------------------------------------------------------------------------------------------
+# The example below represents the following two sentences:
+# (1) "Smith is obliged to eat or drink."
+# (2) "Smith is obliged to not eat."
+# From (1) and (2), the SPARQL* rule corresponding to the DDS axiom from BDL infers:
+# (3) "Smith is obliged to drink."
+########################################################################################################################################
+
+
+########################################################################################################################################
+# Eventuality types and thematic roles
+########################################################################################################################################
+
+soa:Eat rdf:type rdfs:Class, :EventualityType.
+soa:Drink rdf:type rdfs:Class, :EventualityType.
+soa:has-agent rdf:type rdf:Property, :ThematicRole.
+
+
+########################################################################################################################################
+# Input facts:
+########################################################################################################################################
+
+#Smith is obliged to eat or drink:
+soa:eos rdf:type :Obligatory.
+soa:eos :or1 soa:ees; :or2 soa:eds.
+soa:ees rdf:type soa:Eat; soa:has-agent soa:Smith.
+soa:eds rdf:type soa:Drink; soa:has-agent soa:Smith.
+
+#Smith is obliged to not eat.
+soa:enes :not soa:ees.
+soa:enes rdf:type :Obligatory.
+
